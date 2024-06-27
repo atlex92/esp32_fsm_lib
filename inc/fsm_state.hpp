@@ -2,13 +2,13 @@
 
 #include <stdint.h>
 #include <functional>
-#include "fsm_event.hpp"
+
+template <typename T>
+class FsmState {
 
 using OnEnterCallBack = std::function<void()>; 
 using OnExitCallBack = std::function<void()>; 
-using OnProcessCallBack = std::function<std::vector<FsmEvent>()>; 
-
-class FsmState {
+using OnProcessCallBack = std::function<std::vector<T>()>; 
 public:
     virtual ~FsmState() = default;
 	explicit FsmState(const char* const name, OnEnterCallBack on_enter = nullptr, OnProcessCallBack on_process = nullptr, OnExitCallBack on_exit = nullptr)
@@ -25,7 +25,7 @@ public:
         }
     }
 
-    std::vector<FsmEvent> onProcess() {
+    std::vector<T> onProcess() {
         assert(on_process_cb_);
         return on_process_cb_();
     }
