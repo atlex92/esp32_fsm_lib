@@ -2,30 +2,30 @@
 
 #include <assert.h>
 #include "fsm_state.hpp"
+#include "message_dispatcher.hpp"
 
-template <typename T>
 class EventFsmTransition {
 public:
-    EventFsmTransition(const T event, FsmState<T>* const from, FsmState<T>* const to) : event_{event}, state_from_{from}, state_to_{to} {
+    EventFsmTransition(const EventId event, FsmState* const from, FsmState* const to) : event_{event}, state_from_{from}, state_to_{to} {
         assert(from);
         assert(to);
         assert(from != to);
     }
 
-    FsmState<T>* stateFrom() const {
+    FsmState* stateFrom() const {
         return state_from_;
     }
 
-    FsmState<T>* stateTo() const {
+    FsmState* stateTo() const {
         return state_to_;
     }
 
-    T event() const {
+    EventId event() const {
         return event_;
     }
 private:
     static constexpr const char* const TAG{"EventFsmTransition"};
-    T event_{}; 
-    FsmState<T>* state_from_;
-    FsmState<T>* state_to_;
+    EventId event_{}; 
+    FsmState* state_from_;
+    FsmState* state_to_;
 };

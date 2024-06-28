@@ -2,13 +2,14 @@
 
 #include <stdint.h>
 #include <functional>
+#include "message_dispatcher.hpp"
 
-template <typename T>
 class FsmState {
 
 using OnEnterCallBack = std::function<void()>; 
 using OnExitCallBack = std::function<void()>; 
-using OnProcessCallBack = std::function<std::vector<T>()>; 
+using OnProcessCallBack = std::function<std::vector<EventMsg>()>; 
+
 public:
     virtual ~FsmState() = default;
 	explicit FsmState(const char* const name, OnEnterCallBack on_enter = nullptr, OnProcessCallBack on_process = nullptr, OnExitCallBack on_exit = nullptr)
@@ -25,7 +26,7 @@ public:
         }
     }
 
-    std::vector<T> onProcess() {
+    std::vector<EventMsg> onProcess() {
         assert(on_process_cb_);
         return on_process_cb_();
     }
