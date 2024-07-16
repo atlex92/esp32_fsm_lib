@@ -14,8 +14,8 @@
 
 class Fsm : public Task, public MessageConsumer<EventId, FSM_QUEUE_SIZE>, public MessageProducer<EventMsg, FSM_QUEUE_SIZE> {
 public:
-    explicit Fsm(const char* const name, FsmState* const initial_state, const uint32_t period)
-        : Task{name, configMINIMAL_STACK_SIZE * 5}, current_state_{initial_state}, period_ms_{period} {
+    explicit Fsm(const char* const name, FsmState* const initial_state, const uint32_t period, const uint16_t stack_size = configMINIMAL_STACK_SIZE * 5)
+        : Task{name, stack_size, 5}, current_state_{initial_state}, period_ms_{period} {
 
     }
 
@@ -45,8 +45,6 @@ public:
             for(const auto event : new_events) {
                 MessageProducer::produceMessage(event);
             }
-
-            delay(100);
         }
     }
 
@@ -85,6 +83,7 @@ private:
         current_state_->onExit();
         new_state->onEnter();
         current_state_ = new_state;
+        is_first_time_run_ = false;
     }
 
     FsmState* current_state_{};
