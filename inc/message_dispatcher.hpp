@@ -34,6 +34,10 @@ struct SubscriberSet {
 };
 
 public:
+    MessageDispatcher() : Task{"MessageDispatcher", configMINIMAL_STACK_SIZE * 3, 5}{
+
+    }
+
     void addSubscriber(const Topic topic, const SubscriberQueue sub) {
         SubscriberSet& sublist{subscriberSet(topic)};
         sublist.subscribers.insert(sub);

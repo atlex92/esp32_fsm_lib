@@ -23,7 +23,3 @@ idf_component_register(
     SRCS ${srcs}
     REQUIRES ${requires}
 )
-
-if(IDF_TARGET MATCHES "esp32" AND CONFIG_ENABLE_ARDUINO_SPIFFS_DRIVER)
-    maybe_add_component(arduino)
-endif()
