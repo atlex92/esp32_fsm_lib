@@ -8,7 +8,7 @@ class FsmState {
 
 using OnEnterCallBack = std::function<void()>; 
 using OnExitCallBack = std::function<void()>; 
-using OnProcessCallBack = std::function<std::vector<EventMsg>()>; 
+using OnProcessCallBack = std::function<std::vector<TxEventMsg>()>; 
 
 public:
     virtual ~FsmState() = default;
@@ -26,7 +26,7 @@ public:
         }
     }
 
-    std::vector<EventMsg> onProcess() {
+    std::vector<TxEventMsg> onProcess() {
         assert(on_process_cb_);
         return on_process_cb_();
     }

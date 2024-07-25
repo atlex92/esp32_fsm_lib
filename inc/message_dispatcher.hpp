@@ -13,20 +13,31 @@
 using EventId = uint16_t;
 using Topic = uint16_t;
 
-struct EventMsg {
-    Topic topic;
-    EventId event_id;
+union EventPayload {
+    uint8_t byte;
+    char ch;
+    uint16_t ui16;
+    uint32_t ui32;
+    uint64_t ui64;
+    int16_t i16;
+    int32_t i32;
+    int64_t i64;
+    float f;
 };
 
-// template <typename TopicT, typename MessageT>
-// bool operator==(const DispatcherMessage<TopicT, MessageT>& lhs, const DispatcherMessage<TopicT, MessageT>& rhs) {
-//     return ((lhs.msg == rhs.msg) && (lhs.topic == rhs.topic));
-// }
+struct RxEventMsg {
+    EventId event_id;
+    EventPayload payload;
+};
 
-// template <typename TopicT, typename MessageT>
-class MessageDispatcher : public Task, public MessageConsumer<EventMsg, SUBSCRIBER_QUEUE_LEN> {
+struct TxEventMsg {
+    Topic topic;
+    RxEventMsg msg;
+};
 
-using SubscriberQueue = Queue<EventId, SUBSCRIBER_QUEUE_LEN>*;
+class MessageDispatcher : public Task, public MessageConsumer<TxEventMsg, SUBSCRIBER_QUEUE_LEN> {
+
+using SubscriberQueue = Queue<RxEventMsg, SUBSCRIBER_QUEUE_LEN>*;
 
 struct SubscriberSet {
     Topic topic;
@@ -61,10 +72,10 @@ private:
         return subscribers_list_.back();
     }
 
-    void handleIncommingMessage (const EventMsg& message) {
+    void handleIncommingMessage (const TxEventMsg& message) {
         SubscriberSet subset{subscriberSet(message.topic)};
         for(auto &sub : subset.subscribers) {
-            const bool res{sub->enqueueBack(message.event_id)};
+            const bool res{sub->enqueueBack(message.msg)};
             /*  Should never fail! Otherwise will lead to race condition,
                 when subs try to write to the full RX dispatcher's queue,
                 and dispatcher can't handle subs, with the same reason
@@ -76,7 +87,7 @@ private:
         }
     }
     void run(void* data) override {
-        static EventMsg msg{};
+        static TxEventMsg msg{};
         while (1) {
             consumeMessage(msg);
             handleIncommingMessage(msg);

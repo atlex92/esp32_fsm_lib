@@ -12,7 +12,7 @@
 
 #define FSM_QUEUE_SIZE  10U
 
-class Fsm : public Task, public MessageConsumer<EventId, FSM_QUEUE_SIZE>, public MessageProducer<EventMsg, FSM_QUEUE_SIZE> {
+class Fsm : public Task, public MessageConsumer<RxEventMsg, FSM_QUEUE_SIZE>, public MessageProducer<TxEventMsg, FSM_QUEUE_SIZE> {
 public:
     explicit Fsm(const char* const name, FsmState* const initial_state, const uint32_t period, const uint16_t stack_size = configMINIMAL_STACK_SIZE * 5)
         : Task{name, stack_size, 5}, current_state_{initial_state}, period_ms_{period} {
@@ -21,13 +21,13 @@ public:
 
     void run(void* data) {
         while(1) {
-            std::vector<EventId> incoming_events{};
-            EventId event_msg{};
+            std::vector<RxEventMsg> incoming_events{};
+            RxEventMsg event_msg{};
 
             if(MessageConsumer::hasMessages()) {
                 while(MessageConsumer::hasMessages()) {
                     MessageConsumer::consumeMessage(event_msg, 0U);
-                    ESP_LOGD(TAG, "event receive, id = %d\r\n", (int)event_msg);
+                    ESP_LOGD(TAG, "event receive, id = %d\r\n", (int)event_msg.event_id);
                     incoming_events.push_back(event_msg);
                 }
             } else {
@@ -52,9 +52,9 @@ public:
         event_transitions_ = transitions;
     }
     
-    std::vector<EventMsg> process() {
+    std::vector<TxEventMsg> process() {
         assert(current_state_);
-        std::vector<EventMsg> ret{};
+        std::vector<TxEventMsg> ret{};
 
         if(is_first_time_run_) {
             current_state_->onEnter();
@@ -63,17 +63,22 @@ public:
         return current_state_->onProcess();
     }
 
-    void handleEvent(const EventId event) {
+    void handleEvent(const RxEventMsg event) {
         for(const auto& transition : event_transitions_) {
-            if((transition.event() == event) && (transition.stateFrom() == current_state_)) {
+            if((transition.event() == event.event_id) && (transition.stateFrom() == current_state_)) {
                 changeState(transition.stateTo());
                 break;
             }
         }
+        last_message_ = event;
     }
 
     const char* name() const {
         return name_;
+    }
+protected:
+    RxEventMsg lastMessage() const {
+        return last_message_;
     }
 private:
     static constexpr const char* const TAG{"Fsm"};
@@ -91,4 +96,5 @@ private:
     std::vector<EventFsmTransition> event_transitions_{};
     bool is_first_time_run_{true};
     uint32_t period_ms_{};
+    RxEventMsg last_message_{};
 };
