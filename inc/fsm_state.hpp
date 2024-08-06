@@ -9,6 +9,7 @@ class FsmState {
 using OnEnterCallBack = std::function<void()>; 
 using OnExitCallBack = std::function<void()>; 
 using OnProcessCallBack = std::function<std::vector<TxEventMsg>()>; 
+using OnEventCallback = std::function<void(const RxEventMsg& msg)>;
 
 public:
     virtual ~FsmState() = default;
@@ -27,13 +28,22 @@ public:
     }
 
     std::vector<TxEventMsg> onProcess() {
-        assert(on_process_cb_);
-        return on_process_cb_();
+        if(on_process_cb_) {
+            return on_process_cb_();
+        } else {
+            return std::vector<TxEventMsg>{};
+        }
     }
 
     void onExit() {
         if(nullptr != on_exit_cb_) {
             on_exit_cb_();
+        }
+    }
+
+    void onEvent(const RxEventMsg& msg) {
+        if(nullptr != on_event_cb_) {
+            on_event_cb_(msg);
         }
     }
 
@@ -48,6 +58,10 @@ public:
     void setOnProcessCb(OnProcessCallBack cb) {
         on_process_cb_ = cb;
     }
+
+    void setOnEventCb(OnEventCallback cb) {
+        on_event_cb_ = cb;
+    }
 private:
     static constexpr const char* const TAG{"FsmState"};
 	const char* const name_{};
@@ -55,4 +69,5 @@ protected:
     OnEnterCallBack on_enter_cb_{};
     OnProcessCallBack on_process_cb_{};
     OnExitCallBack on_exit_cb_{};
+    OnEventCallback on_event_cb_{};
 };
