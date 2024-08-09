@@ -64,9 +64,9 @@ public:
     }
 
     void handleEvent(const RxEventMsg event) {
+        current_state_->onEvent(event);
         for(const auto& transition : event_transitions_) {
             if((transition.event() == event.event_id) && (transition.stateFrom() == current_state_)) {
-                current_state_->onEvent(event);
                 changeState(transition.stateTo());
                 break;
             }
