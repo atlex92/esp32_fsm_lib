@@ -23,6 +23,7 @@ union EventPayload {
     int32_t i32;
     int64_t i64;
     float f;
+    const void* ptr;
 };
 
 struct RxEventMsg {
