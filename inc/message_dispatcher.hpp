@@ -7,8 +7,7 @@
 #include "message_consumer.hpp"
 #include "queue.hpp"
 #include "esp_log.h"
-
-#define SUBSCRIBER_QUEUE_LEN    10U
+#include "fsm_config.hpp"
 
 using EventId = uint16_t;
 using Topic = uint16_t;
@@ -35,10 +34,9 @@ struct TxEventMsg {
     Topic topic;
     RxEventMsg msg;
 };
+class MessageDispatcher : public Task, public MessageConsumer<TxEventMsg, DISPATCHER_MESSAGE_QUEUE_LEN> {
 
-class MessageDispatcher : public Task, public MessageConsumer<TxEventMsg, SUBSCRIBER_QUEUE_LEN> {
-
-using SubscriberQueue = Queue<RxEventMsg, SUBSCRIBER_QUEUE_LEN>*;
+using SubscriberQueue = Queue<RxEventMsg, SUBSCRIBER_MESSAGE_QUEUE_LEN>*;
 
 struct SubscriberSet {
     Topic topic;

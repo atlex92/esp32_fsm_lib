@@ -9,10 +9,9 @@
 #include "message_producer.hpp"
 #include "esp_log.h"
 #include "message_dispatcher.hpp"
+#include "fsm_config.hpp"
 
-#define FSM_QUEUE_SIZE  10U
-
-class Fsm : public Task, public MessageConsumer<RxEventMsg, FSM_QUEUE_SIZE>, public MessageProducer<TxEventMsg, FSM_QUEUE_SIZE> {
+class Fsm : public Task, public MessageConsumer<RxEventMsg, SUBSCRIBER_MESSAGE_QUEUE_LEN>, public MessageProducer<TxEventMsg, DISPATCHER_MESSAGE_QUEUE_LEN> {
 public:
     explicit Fsm(const char* const name, FsmState* const initial_state, const uint32_t period, const uint16_t stack_size = configMINIMAL_STACK_SIZE * 5)
         : Task{name, stack_size, 5}, current_state_{initial_state}, period_ms_{period} {
