@@ -13,8 +13,8 @@
 
 class Fsm : public Task, public MessageConsumer<RxEventMsg, SUBSCRIBER_MESSAGE_QUEUE_LEN>, public MessageProducer<TxEventMsg, DISPATCHER_MESSAGE_QUEUE_LEN> {
 public:
-    explicit Fsm(const char* const name, FsmState* const initial_state, const uint32_t period, const uint16_t stack_size = configMINIMAL_STACK_SIZE * 5)
-        : Task{name, stack_size, 5}, current_state_{initial_state}, period_ms_{period} {
+    explicit Fsm(const char* const name, FsmState* const initial_state, const uint32_t period, const uint8_t prio = 1, const uint16_t stack_size = configMINIMAL_STACK_SIZE * 5)
+        : Task{name, stack_size, prio}, current_state_{initial_state}, period_ms_{period} {
 
     }
 
