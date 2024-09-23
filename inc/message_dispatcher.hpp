@@ -81,6 +81,15 @@ private:
             */
             if(!res) {
                 ESP_LOGE(TAG, "CRITICAL ERROR: failed to handle message: topic = %d", message.topic);
+                ESP_LOGE(TAG, "available space in queue: %u", sub->available());
+                ESP_LOGE(TAG, "messages in queue: %u", sub->size());
+
+                while(sub->size()) {
+                    RxEventMsg msg{};
+                    sub->receive(msg);
+                    ESP_LOGE(TAG, "message: %u", msg.event_id);
+                }
+                
                 assert(false);
             }
         }
