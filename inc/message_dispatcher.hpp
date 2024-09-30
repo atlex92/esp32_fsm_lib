@@ -44,7 +44,7 @@ struct SubscriberSet {
 };
 
 public:
-    MessageDispatcher() : Task{"MessageDispatcher", configMINIMAL_STACK_SIZE * 3, (configMAX_PRIORITIES - 1)}{
+    MessageDispatcher() : Task{"MessageDispatcher", configMINIMAL_STACK_SIZE * 2, (configMAX_PRIORITIES - 1)}{
 
     }
 
