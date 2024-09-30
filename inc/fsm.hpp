@@ -14,7 +14,7 @@
 class Fsm : public Task, public MessageConsumer<RxEventMsg, SUBSCRIBER_MESSAGE_QUEUE_LEN>, public MessageProducer<TxEventMsg, DISPATCHER_MESSAGE_QUEUE_LEN> {
 public:
     explicit Fsm(const char* const name, FsmState* const initial_state, const uint32_t period, const uint8_t prio = 1, const uint16_t stack_size = configMINIMAL_STACK_SIZE * 2, const BaseType_t core_id = 0)
-        : Task{name, stack_size, prio, core_id}, current_state_{initial_state}, period_ms_{period} {
+        : Task{name, stack_size, prio, core_id}, current_state_{initial_state}, name_{name}, period_ms_{period} {
 
     }
 
@@ -26,7 +26,7 @@ public:
             if(MessageConsumer::hasMessages()) {
                 while(MessageConsumer::hasMessages()) {
                     MessageConsumer::consumeMessage(event_msg, 0U);
-                    ESP_LOGD(TAG, "event receive, id = %d\r\n", (int)event_msg.event_id);
+                    ESP_LOGD(TAG, "%s - event receive, id = %d\r\n", name_, (int)event_msg.event_id);
                     incoming_events.push_back(event_msg);
                 }
             } else {
@@ -92,7 +92,7 @@ private:
     }
 
     FsmState* current_state_{};
-    const char* const name_{};
+    const char* const name_{""};
     std::vector<EventFsmTransition> event_transitions_{};
     bool is_first_time_run_{true};
     uint32_t period_ms_{};
