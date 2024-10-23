@@ -14,7 +14,7 @@
 
 //     void process() {
 //         std::vector<EventId> events{collectEvents()};
-//         handleEvents(events);        
+//         handleEvents(events);
 //     }
 // private:
 //     std::vector<EventId> collectEvents() {
